@@ -14,6 +14,7 @@ namespace GameProject
         [SerializeField] Animator _anim;
         [SerializeField] CinemachineVirtualCamera _vcam;
         [SerializeField] Transform _CameraFollowTarget;
+        [SerializeField] Transform _FreeCameraFollowTarget;
         [SerializeField] AudioListener _audioListener;
         [SerializeField] Transform _playerTransform;
         [SerializeField] CharacterController _charachterController;
@@ -28,7 +29,8 @@ namespace GameProject
             {
                 _audioListener.enabled = true;
                 _vcam.Priority = 1;
-                _vcam.Follow = _CameraFollowTarget;
+                _vcam.Follow = _playerTransform;
+                //_vcam.Follow = _CameraFollowTarget;
             }
             else
             {
@@ -43,6 +45,7 @@ namespace GameProject
             // look around
             if (Input.GetMouseButton(0)) 
             {
+                _vcam.Follow = _CameraFollowTarget;
                 Vector2 targetMouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
 
                 if (IsServer && IsLocalPlayer)
@@ -56,8 +59,21 @@ namespace GameProject
             } // look around and change direction
             else if (Input.GetMouseButton(1))
             {
+                _vcam.Follow = _playerTransform;
                 Vector2 targetMouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
-                LookAround2(targetMouseDelta);
+                if (IsServer && IsLocalPlayer)
+                {
+                    LookAround2(targetMouseDelta);
+                }
+                else if (IsClient && IsLocalPlayer)
+                {
+                    LookAround2ServerRpc(targetMouseDelta);
+                }
+            }
+            else
+            {
+               _vcam.Follow = _playerTransform;
+                _CameraFollowTarget.rotation = _playerTransform.rotation;
             }
 
             float xInput = Input.GetAxis("Horizontal");
@@ -117,6 +133,12 @@ namespace GameProject
         private void LookAroundServerRpc(Vector2 _input)
         {
             LookAround(_input);
+        }
+
+        [ServerRpc]
+        private void LookAround2ServerRpc(Vector2 _input)
+        {
+            LookAround2(_input);
         }
 
         [ServerRpc]
