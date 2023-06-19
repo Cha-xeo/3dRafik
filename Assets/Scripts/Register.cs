@@ -4,13 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using Mono.Data.Sqlite;
+using TMPro;
 
 public class Register : MonoBehaviour
 {
     [Header("Input Fields")]
-    [SerializeField] private InputField usernameField = null;
-    [SerializeField] private InputField passwordField = null;
-    [SerializeField] private InputField emailField = null;
+    [SerializeField] private TMP_InputField usernameField = null;
+    [SerializeField] private TMP_InputField passwordField = null;
+    [SerializeField] private TMP_InputField emailField = null;
 
     [Header("Error Texts")]
     [SerializeField] private Text usernameErrorText = null;
@@ -21,7 +22,8 @@ public class Register : MonoBehaviour
 
     private void Awake()
     {
-        connectionString = "FullURI=:memory:";
+        Debug.Log(Application.dataPath);
+        connectionString = "URI=file:" + Application.dataPath + "/Users.db";
     }
 
     private void Start()
@@ -38,7 +40,7 @@ public class Register : MonoBehaviour
 
             using (var command = connection.CreateCommand())
             {
-                command.CommandText = "CREATE TABLE IF NOT EXISTS Users (PlayerID INT IDENTITY PRIMARY KEY, Username NVARCHAR(50), PasswordHash NVARCHAR(255), Email NVARCHAR(255), RegistrationDate DATETIME, LastLoginDate DATETIME, TotalScore INT)";
+                command.CommandText = "CREATE TABLE IF NOT EXISTS Players (PlayerID INT IDENTITY PRIMARY KEY, Username NVARCHAR(50), PasswordHash NVARCHAR(255), Email NVARCHAR(255), RegistrationDate DATETIME, LastLoginDate DATETIME, TotalScore INT)";
                 command.ExecuteNonQuery();
             }
 
@@ -57,9 +59,10 @@ public class Register : MonoBehaviour
 
         using (SqliteConnection connection = new SqliteConnection(connectionString))
         {
+            Debug.Log(connection);
             connection.Open();
 
-            string query = "INSERT INTO Users (Username, PasswordHash, Email, RegistrationDate, LastLoginDate, TotalScore) " +
+            string query = "INSERT INTO Players (Username, PasswordHash, Email, RegistrationDate, LastLoginDate, TotalScore) " +
                 "VALUES (@username, @password, @email, @registrationDate, @lastLoginDate, @totalScore)";
 
             using (SqliteCommand command = new SqliteCommand(query, connection))

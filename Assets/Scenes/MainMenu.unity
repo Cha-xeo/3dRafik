@@ -1548,9 +1548,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 300141283cedd7c4ab9d3f9c949f392b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  usernameField: {fileID: 0}
-  passwordField: {fileID: 0}
-  emailField: {fileID: 0}
+  usernameField: {fileID: 663494991}
+  passwordField: {fileID: 711306674}
+  emailField: {fileID: 293002930}
   usernameErrorText: {fileID: 0}
   passwordErrorText: {fileID: 0}
   emailErrorText: {fileID: 0}
