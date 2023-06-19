@@ -14,14 +14,17 @@ public class Register : MonoBehaviour
     [SerializeField] private TMP_InputField emailField = null;
 
     [Header("Error Texts")]
-    [SerializeField] private Text usernameErrorText = null;
-    [SerializeField] private Text passwordErrorText = null;
-    [SerializeField] private Text emailErrorText = null;
+    [SerializeField] private TMP_Text usernameErrorText = null;
+    [SerializeField] private TMP_Text passwordErrorText = null;
+    [SerializeField] private TMP_Text emailErrorText = null;
 
     private string connectionString;
 
     private void Awake()
     {
+        passwordField.contentType = TMP_InputField.ContentType.Password;
+        emailField.contentType = TMP_InputField.ContentType.EmailAddress;
+        usernameField.contentType = TMP_InputField.ContentType.Name;
         Debug.Log(Application.dataPath);
         connectionString = "URI=file:" + Application.dataPath + "/Users.db";
     }
