@@ -5,48 +5,47 @@ using UnityEngine.UI;
 using System;
 using Mono.Data.Sqlite;
 using TMPro;
-using Unity.VisualScripting.Dependencies.Sqlite;
-using System.Data.Common;
-using UnityEditor.Search;
 
 public class Register : MonoBehaviour
 {
     [Header("Input Fields")]
-    [SerializeField] TMP_InputField usernameField = null;
-    [SerializeField] TMP_InputField passwordField = null;
-    [SerializeField] TMP_InputField emailField = null;
+    [SerializeField] private TMP_InputField usernameField = null;
+    [SerializeField] private TMP_InputField passwordField = null;
+    [SerializeField] private TMP_InputField emailField = null;
 
     [Header("Error Texts")]
-    [SerializeField] TMP_Text usernameErrorText = null;
-    [SerializeField] TMP_Text passwordErrorText = null;
-    [SerializeField] TMP_Text emailErrorText = null;
+    [SerializeField] private Text usernameErrorText = null;
+    [SerializeField] private Text passwordErrorText = null;
+    [SerializeField] private Text emailErrorText = null;
 
-    SqliteConnectionStringBuilder connectionStringBuilder = new();
-    public SqliteConnection connection;
+    private string connectionString;
 
+    private void Awake()
+    {
+        Debug.Log(Application.dataPath);
+        connectionString = "URI=file:" + Application.dataPath + "/Users.db";
+    }
 
     private void Start()
     {
-        emailField.contentType = TMP_InputField.ContentType.EmailAddress;
-        passwordField.contentType = TMP_InputField.ContentType.Password;
-        connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = ":memory:" };
-        connection = new SqliteConnection(connectionStringBuilder.ToString());
         CreateDB();
+
     }
 
     private void CreateDB()
     {
-        //using (var connection = new SqliteConnection(connectionStringBuilder.ToString()))
-        //{
+        using (var connection = new SqliteConnection(connectionString))
+        {
             connection.Open();
-            string query = "CREATE TABLE IF NOT EXISTS Users (PlayerID INT IDENTITY PRIMARY KEY, Username NVARCHAR(50), PasswordHash NVARCHAR(255), Email NVARCHAR(255), RegistrationDate DATETIME, LastLoginDate DATETIME, TotalScore INT)";
-            using (SqliteCommand command = new SqliteCommand(query, connection))
+
+            using (var command = connection.CreateCommand())
             {
+                command.CommandText = "CREATE TABLE IF NOT EXISTS Players (PlayerID INT IDENTITY PRIMARY KEY, Username NVARCHAR(50), PasswordHash NVARCHAR(255), Email NVARCHAR(255), RegistrationDate DATETIME, LastLoginDate DATETIME, TotalScore INT)";
                 command.ExecuteNonQuery();
             }
 
-          //  connection.Close();
-        //}
+            connection.Close();
+        }
     }
 
     public void Submit()
@@ -58,11 +57,12 @@ public class Register : MonoBehaviour
 
         string hashedPassword = HashPassword(password);
 
-        //using (SqliteConnection connection = new SqliteConnection(connectionStringBuilder.ToString()))
-        //{
-          //  connection.Open();
+        using (SqliteConnection connection = new SqliteConnection(connectionString))
+        {
+            Debug.Log(connection);
+            connection.Open();
 
-            string query = "INSERT INTO Users (Username, PasswordHash, Email, RegistrationDate, LastLoginDate, TotalScore) " +
+            string query = "INSERT INTO Players (Username, PasswordHash, Email, RegistrationDate, LastLoginDate, TotalScore) " +
                 "VALUES (@username, @password, @email, @registrationDate, @lastLoginDate, @totalScore)";
 
             using (SqliteCommand command = new SqliteCommand(query, connection))
@@ -79,8 +79,8 @@ public class Register : MonoBehaviour
 
             Debug.Log(query);
 
-          //  connection.Close();
-        //}
+            connection.Close();
+        }
     }
 
     private string HashPassword(string password)
